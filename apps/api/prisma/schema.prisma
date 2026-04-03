@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  studentId             String?
+  role                  String
+  smartAccountAddress   String?
+  createdAt             DateTime @default(now())
+  enrollments           Enrollment[]
+  coursesTeaching       Course[] @relation("LecturerCourses")
+  attempts              Attempt[]
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  lecturerId  String
+  lecturer    User     @relation("LecturerCourses", fields: [lecturerId], references: [id], onDelete: Cascade)
+  title       String
+  code        String
+  level       String
+  term        String
+  joinCode    String?
+  materials   Material[]
+  exams       Exam[]
+  enrollments Enrollment[]
+  createdAt   DateTime @default(now())
+}
+
+model Enrollment {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  courseId  Int
+  status    String @default("ACTIVE")
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Material {
+  id        Int    @id @default(autoincrement())
+  courseId  Int
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name      String
+  cid       String
+  textHint  String?
+  createdAt DateTime @default(now())
+}
+
+model Exam {
+  id               Int      @id @default(autoincrement())
+  courseId         Int
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title            String
+  status           String   @default("DRAFT")
+  opensAt          DateTime
+  closesAt         DateTime
+  durationMinutes  Int
+  questionSource   String
+  contentHash      String?
+  examKey          String?
+  questions        Question[]
+  attempts         Attempt[]
+  createdAt        DateTime @default(now())
+}
+
+model Question {
+  id            Int    @id @default(autoincrement())
+  examId        Int
+  exam          Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  type          String
+  prompt        String
+  options       String?
+  correctIndex  Int?
+  points        Int    @default(1)
+  order         Int    @default(0)
+}
+
+model Attempt {
+  id             Int       @id @default(autoincrement())
+  examId         Int
+  exam           Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt      DateTime  @default(now())
+  submittedAt    DateTime?
+  answers        String?
+  score          Int?
+  scoreHash      String?
+  metadataHash   String?
+  anchorTxHash   String?
+  anchorStatus   String    @default("PENDING")
+  personalized   String?
+
+  @@unique([examId, userId])
+}

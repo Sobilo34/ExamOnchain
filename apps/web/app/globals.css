@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #0f172a;
+  --muted: #64748b;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}

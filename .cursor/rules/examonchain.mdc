@@ -1,0 +1,12 @@
+---
+description: ExamOnchain stack and security invariants
+globs: apps/**/*, contracts/**/*
+---
+
+# ExamOnchain
+
+- **Node:** Use **20.x LTS** (`nvm use` reads [`.nvmrc`](.nvmrc)). Node **23** often crashes **Next/SWC** (bus error) and **esbuild/tsx** (EPIPE) on some Linux setups.
+- **Chain:** Ethereum **Sepolia** only for development; AA via Alchemy in production patterns; web links smart account by **paste address** (viem `isAddress`) when embedded wallet is not configured.
+- **PII:** Never put email or plaintext student IDs on-chain. Use `studentCommitment` + `examKey` + `scoreHash` in contracts only.
+- **API:** `apps/api` Fastify + Prisma (SQLite file `apps/api/dev.db` by default). Session cookie `token` + `credentials: 'include'` from `apps/web`.
+- **Contracts:** `ExamRegistry` + `ScoreAnchor` under `contracts/`; relayer keys in env, never commit real keys.

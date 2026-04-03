@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "examonchain-specs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/bilal/bilal_projects/side-gigs/ExamOnchain/docs/mcp-context"
+      ]
+    }
+  }
+}

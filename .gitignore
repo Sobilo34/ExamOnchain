@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+out
+cache
+*.db
+*.db-journal
+.env
+apps/api/dev.db
+apps/api/dev.db-journal
+contracts/broadcast
+contracts/cache

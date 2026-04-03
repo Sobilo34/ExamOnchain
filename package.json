@@ -1,0 +1,19 @@
+{
+  "name": "examonchain",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @examonchain/api\" \"npm run dev -w @examonchain/web\"",
+    "build": "npm run build -w @examonchain/api && npm run build -w @examonchain/web",
+    "db:generate": "npm run db:generate -w @examonchain/api",
+    "db:push": "npm run db:push -w @examonchain/api",
+    "contracts:build": "forge build --root contracts",
+    "contracts:test": "forge test --root contracts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
