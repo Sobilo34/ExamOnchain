@@ -97,18 +97,36 @@ export default function ExamAttemptPage() {
 
   const mm = Math.floor(leftSec / 60);
   const ss = leftSec % 60;
+  const answeredCount = questions.reduce(
+    (acc, q) =>
+      answers[String(q.id)] != null && String(answers[String(q.id)]).length > 0
+        ? acc + 1
+        : acc,
+    0,
+  );
 
   return (
     <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
-      <div className="sticky top-0 z-10 -mx-4 mb-6 rounded-b-2xl border-b border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-950 shadow-sm">
-        Time left: {mm}:{ss.toString().padStart(2, "0")}
-        {saving && <span className="ml-2 text-slate-600">Saving…</span>}
+      <div className="sticky top-0 z-10 -mx-4 mb-6 rounded-b-2xl border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span>
+            Time left: {mm}:{ss.toString().padStart(2, "0")}
+          </span>
+          <span className="text-xs text-amber-900/90">
+            Answered {answeredCount}/{questions.length}
+          </span>
+        </div>
+        {saving && (
+          <span className="fut-saving-pulse mt-1 inline-block text-xs text-slate-600">
+            Saving changes…
+          </span>
+        )}
       </div>
-      <ol className="space-y-8">
+      <ol className="space-y-6 pb-24 md:pb-8">
         {questions.map((q, i) => (
           <li
             key={q.id}
-            className="rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur"
+            className="fut-enter rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur"
           >
             <p className="text-sm font-medium text-slate-500">
               Question {i + 1} · {q.points} pt(s)
@@ -119,7 +137,7 @@ export default function ExamAttemptPage() {
                 {q.options.map((opt, j) => (
                   <label
                     key={j}
-                    className="flex cursor-pointer items-center gap-2 text-sm"
+                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm transition hover:border-slate-300"
                   >
                     <input
                       type="radio"
@@ -131,14 +149,14 @@ export default function ExamAttemptPage() {
                         void persist(next);
                       }}
                     />
-                    {opt}
+                    <span>{opt}</span>
                   </label>
                 ))}
               </div>
             )}
             {q.type === "SHORT_ANSWER" && (
               <textarea
-                className="mt-3 w-full rounded border border-slate-300 p-2 text-sm"
+                className="mt-3 w-full rounded-xl border border-slate-300 p-2 text-sm"
                 rows={3}
                 value={(answers[String(q.id)] as string) ?? ""}
                 onChange={(e) => {
@@ -151,13 +169,15 @@ export default function ExamAttemptPage() {
           </li>
         ))}
       </ol>
-      <button
-        type="button"
-        className="mt-8 rounded-full bg-slate-900 px-6 py-2.5 text-sm text-white"
-        onClick={() => void submit()}
-      >
-        Submit exam
-      </button>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 p-3 backdrop-blur md:static md:mt-8 md:border-0 md:bg-transparent md:p-0">
+        <button
+          type="button"
+          className="w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white md:w-auto md:py-2.5"
+          onClick={() => void submit()}
+        >
+          Submit exam
+        </button>
+      </div>
     </AppShell>
   );
 }

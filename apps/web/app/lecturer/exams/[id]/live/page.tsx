@@ -44,27 +44,63 @@ export default function ExamLivePage() {
 
   return (
     <AppShell role="lecturer" email={me.email} wallet={me.smartAccountAddress}>
-      <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+      <div className="fut-enter mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
         <h1 className="text-2xl font-semibold">Exam monitor</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Attempts started: {data.totalAttempts} · Submitted: {data.submitted}
-        </p>
-        <table className="mt-6 w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-slate-500">
-              <th className="py-2">Attempt</th>
-              <th>User</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.attempts.map((a) => (
-              <tr key={a.id} className="border-b border-slate-100">
-                <td className="py-2">{a.id}</td>
-                <td className="font-mono text-xs">{a.userId}</td>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+              Attempts started
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">
+              {data.totalAttempts}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+              Submitted
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">
+              {data.submitted}
+            </p>
+          </div>
+        </div>
+        <ul className="mt-6 grid gap-3 md:hidden">
+          {data.attempts.map((a) => (
+            <li
+              key={a.id}
+              className="rounded-2xl border border-slate-200 bg-white p-3 text-sm"
+            >
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                Attempt
+              </p>
+              <p className="mt-1 text-base font-semibold text-slate-900">
+                {a.id}
+              </p>
+              <p className="mt-2 truncate font-mono text-xs text-slate-700">
+                {a.userId}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white md:block">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-slate-500">
+                <th className="py-3 pl-4">Attempt</th>
+                <th className="pr-4">User</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.attempts.map((a) => (
+                <tr key={a.id} className="border-b border-slate-100">
+                  <td className="py-3 pl-4">{a.id}</td>
+                  <td className="pr-4 font-mono text-xs">{a.userId}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <Link
           href="/lecturer/courses"
           className="mt-8 inline-block text-sm underline"
