@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { appBrand } from "@/lib/brand";
+import { appBrand, aiConfig, networkConfig } from "@/lib/brand";
+import { FutminnaMark } from "@/components/FutminnaMark";
 
 export default function HomePage() {
   return (
@@ -10,9 +11,7 @@ export default function HomePage() {
       <header className="relative border-b border-slate-900/10 bg-white/55 px-6 py-4 backdrop-blur-xl">
         <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-900/10 bg-[#16162f] text-sm font-semibold text-white shadow-[0_12px_40px_rgba(15,23,42,0.25)]">
-              FUT
-            </div>
+            <FutminnaMark size={44} />
             <div>
               <p className="text-xs uppercase tracking-[0.32em] text-slate-500">
                 {appBrand.institutionShortName}
@@ -41,16 +40,17 @@ export default function HomePage() {
       <main className="relative mx-auto grid w-full max-w-7xl flex-1 gap-14 px-6 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-20">
         <section className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-600 shadow-sm backdrop-blur">
-            FUTMINNA · Sepolia · OpenRouter · Blockscout
+            {appBrand.institutionShortName} · {networkConfig.chainName} ·{" "}
+            {aiConfig.providerName} · {networkConfig.explorerName}
           </div>
           <h1 className="mt-8 text-5xl leading-[0.95] font-semibold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
             Decentralized assessments for a serious university.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
             {appBrand.appName} gives FUTMINNA a transparent assessment stack:
-            AI-assisted question extraction with OpenRouter, personalized
-            attempts, real-time scoring, and immutable score anchoring on
-            Ethereum Sepolia.
+            AI-assisted question extraction with {aiConfig.providerName},
+            personalized attempts, real-time scoring, and immutable score
+            anchoring on Ethereum {networkConfig.chainName}.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
@@ -70,11 +70,11 @@ export default function HomePage() {
             {[
               [
                 "Tamper-evident",
-                "Score anchors and exam hashes stay on Sepolia.",
+                `Score anchors and exam hashes stay on ${networkConfig.chainName}.`,
               ],
               [
                 "AI-assisted",
-                "OpenRouter extracts questions from notes and quizzes.",
+                `${aiConfig.providerName} extracts questions from notes and quizzes.`,
               ],
               [
                 "Institution-first",
@@ -105,7 +105,7 @@ export default function HomePage() {
                 </h2>
               </div>
               <div className="rounded-full bg-emerald-500/12 px-3 py-1 text-xs font-semibold text-emerald-800">
-                Sepolia live
+                {networkConfig.chainName} live
               </div>
             </div>
 
@@ -122,9 +122,18 @@ export default function HomePage() {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {[
-                ["AI pipeline", "OpenRouter extraction and exam drafting"],
-                ["Blockchain trail", "Sepolia registry + score anchoring"],
-                ["Explorer", "Blockscout by default for verification"],
+                [
+                  "AI pipeline",
+                  `${aiConfig.providerName} extraction and exam drafting`,
+                ],
+                [
+                  "Blockchain trail",
+                  `${networkConfig.chainName} registry + score anchoring`,
+                ],
+                [
+                  "Explorer",
+                  `${networkConfig.explorerName} by default for verification`,
+                ],
                 ["Identity", "Smart accounts for students and lecturers"],
               ].map(([title, body]) => (
                 <div
@@ -143,7 +152,7 @@ export default function HomePage() {
       </main>
       <footer className="relative border-t border-slate-900/10 bg-white/45 px-6 py-6 text-center text-xs uppercase tracking-[0.28em] text-slate-600 backdrop-blur">
         {appBrand.appName} for {appBrand.institutionShortName} · PII stays
-        off-chain · verification defaults to Blockscout
+        off-chain · verification defaults to {networkConfig.explorerName}
       </footer>
     </div>
   );

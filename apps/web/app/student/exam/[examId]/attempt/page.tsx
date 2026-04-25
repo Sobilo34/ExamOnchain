@@ -17,7 +17,10 @@ export default function ExamAttemptPage() {
   const params = useParams();
   const router = useRouter();
   const examId = Number(params.examId);
-  const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
+  const [me, setMe] = useState<{
+    email: string;
+    smartAccountAddress: string | null;
+  } | null>(null);
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [durationMinutes, setDurationMinutes] = useState(60);
@@ -33,10 +36,11 @@ export default function ExamAttemptPage() {
   }, [router]);
 
   const start = useCallback(async () => {
-    const r = await api<{ attemptId: number; questions: Q[]; durationMinutes: number }>(
-      `/v1/student/exams/${examId}/attempts`,
-      { method: "POST" }
-    );
+    const r = await api<{
+      attemptId: number;
+      questions: Q[];
+      durationMinutes: number;
+    }>(`/v1/student/exams/${examId}/attempts`, { method: "POST" });
     setAttemptId(r.attemptId);
     setQuestions(r.questions);
     setDurationMinutes(r.durationMinutes);
@@ -44,7 +48,9 @@ export default function ExamAttemptPage() {
   }, [examId]);
 
   useEffect(() => {
-    void start().catch(() => router.push(`/student/exam/${examId}/instructions`));
+    void start().catch(() =>
+      router.push(`/student/exam/${examId}/instructions`),
+    );
   }, [examId, router, start]);
 
   useEffect(() => {
@@ -74,30 +80,36 @@ export default function ExamAttemptPage() {
     if (!attemptId) return;
     try {
       await persist(answers);
-      await api<{ score: number; max: number; anchorTxHash: string | null; anchorStatus: string }>(
-        `/v1/student/attempts/${attemptId}/submit`,
-        { method: "POST" }
-      );
+      await api<{
+        score: number;
+        max: number;
+        anchorTxHash: string | null;
+        anchorStatus: string;
+      }>(`/v1/student/attempts/${attemptId}/submit`, { method: "POST" });
       router.push(`/student/exam/${examId}/result?attempt=${attemptId}`);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Submit failed");
     }
   };
 
-  if (!me || !attemptId) return <div className="p-8 text-center">Starting exam…</div>;
+  if (!me || !attemptId)
+    return <div className="p-8 text-center">Starting exam…</div>;
 
   const mm = Math.floor(leftSec / 60);
   const ss = leftSec % 60;
 
   return (
     <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
-      <div className="sticky top-0 z-10 -mx-4 mb-6 border-b border-slate-200 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-950">
+      <div className="sticky top-0 z-10 -mx-4 mb-6 rounded-b-2xl border-b border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-950 shadow-sm">
         Time left: {mm}:{ss.toString().padStart(2, "0")}
         {saving && <span className="ml-2 text-slate-600">Saving…</span>}
       </div>
       <ol className="space-y-8">
         {questions.map((q, i) => (
-          <li key={q.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <li
+            key={q.id}
+            className="rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur"
+          >
             <p className="text-sm font-medium text-slate-500">
               Question {i + 1} · {q.points} pt(s)
             </p>
@@ -105,7 +117,10 @@ export default function ExamAttemptPage() {
             {q.type === "MCQ" && q.options && (
               <div className="mt-3 space-y-2">
                 {q.options.map((opt, j) => (
-                  <label key={j} className="flex cursor-pointer items-center gap-2 text-sm">
+                  <label
+                    key={j}
+                    className="flex cursor-pointer items-center gap-2 text-sm"
+                  >
                     <input
                       type="radio"
                       name={`q-${q.id}`}
@@ -138,7 +153,7 @@ export default function ExamAttemptPage() {
       </ol>
       <button
         type="button"
-        className="mt-8 rounded-lg bg-slate-900 px-6 py-2.5 text-sm text-white"
+        className="mt-8 rounded-full bg-slate-900 px-6 py-2.5 text-sm text-white"
         onClick={() => void submit()}
       >
         Submit exam

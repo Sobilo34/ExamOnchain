@@ -27,7 +27,10 @@ export default function StudentCoursePage() {
   const params = useParams();
   const router = useRouter();
   const courseId = Number(params.courseId);
-  const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
+  const [me, setMe] = useState<{
+    email: string;
+    smartAccountAddress: string | null;
+  } | null>(null);
   const [course, setCourse] = useState<CourseDetail | null>(null);
 
   useEffect(() => {
@@ -49,17 +52,20 @@ export default function StudentCoursePage() {
 
   return (
     <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
-      <Link href="/student/dashboard" className="text-sm text-slate-600 hover:underline">
+      <Link
+        href="/student/dashboard"
+        className="text-sm text-slate-600 hover:underline"
+      >
         ← Courses
       </Link>
-      <h1 className="mt-4 text-xl font-semibold">
+      <h1 className="mt-4 text-2xl font-semibold">
         {course.code} — {course.title}
       </h1>
       <p className="text-sm text-slate-500">
         {course.level} · {course.term}
       </p>
       <h2 className="mt-8 text-sm font-medium text-slate-700">Materials</h2>
-      <ul className="mt-2 text-sm text-slate-600">
+      <ul className="mt-2 rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm text-slate-600 backdrop-blur">
         {course.materials.map((m) => (
           <li key={m.id}>
             {m.name} <span className="text-slate-400">({m.cid})</span>
@@ -68,7 +74,7 @@ export default function StudentCoursePage() {
         {course.materials.length === 0 && <li>No materials yet.</li>}
       </ul>
       <h2 className="mt-8 text-sm font-medium text-slate-700">Exams</h2>
-      <table className="mt-2 w-full text-sm">
+      <table className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 text-sm backdrop-blur">
         <thead>
           <tr className="border-b text-left text-slate-500">
             <th className="py-2">Title</th>
@@ -86,23 +92,31 @@ export default function StudentCoursePage() {
               <tr key={e.id} className="border-b border-slate-100">
                 <td className="py-2">{e.title}</td>
                 <td className="text-slate-600">
-                  {new Date(e.opensAt).toLocaleString()} – {new Date(e.closesAt).toLocaleString()}
+                  {new Date(e.opensAt).toLocaleString()} –{" "}
+                  {new Date(e.closesAt).toLocaleString()}
                 </td>
                 <td>
                   {live && (
-                    <Link className="text-sky-700 underline" href={`/student/exam/${e.id}/instructions`}>
+                    <Link
+                      className="text-sky-700 underline"
+                      href={`/student/exam/${e.id}/instructions`}
+                    >
                       Open
                     </Link>
                   )}
                   {done && <span className="text-slate-400">Closed</span>}
-                  {!live && !done && <span className="text-slate-400">Upcoming</span>}
+                  {!live && !done && (
+                    <span className="text-slate-400">Upcoming</span>
+                  )}
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
-      {course.exams.length === 0 && <p className="mt-2 text-slate-600">No published exams.</p>}
+      {course.exams.length === 0 && (
+        <p className="mt-2 text-slate-600">No published exams.</p>
+      )}
     </AppShell>
   );
 }

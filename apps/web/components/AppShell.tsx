@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { appBrand } from "@/lib/brand";
+import { appBrand, networkConfig } from "@/lib/brand";
+import { FutminnaMark } from "@/components/FutminnaMark";
 
 export function AppShell({
   role,
@@ -32,9 +33,7 @@ export function AppShell({
               href={`${base}/dashboard`}
               className="flex items-center gap-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-900/10 bg-[#141834] text-[11px] font-semibold uppercase tracking-[0.24em] text-white">
-                FUT
-              </div>
+              <FutminnaMark size={40} />
               <div>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
                   {appBrand.institutionShortName}
@@ -66,7 +65,7 @@ export function AppShell({
           </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
             <span className="rounded-full border border-slate-900/10 bg-white px-3 py-1 font-semibold text-slate-700">
-              Sepolia
+              {networkConfig.chainName}
             </span>
             {email && (
               <span className="max-w-[14rem] truncate rounded-full bg-white px-3 py-1">

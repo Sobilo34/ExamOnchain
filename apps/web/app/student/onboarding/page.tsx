@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import { isAddress } from "viem";
 import { useAccount, useAuthModal, useSignerStatus } from "@account-kit/react";
 import { api } from "@/lib/api";
-import { hasAlchemyApiKey, isAlchemyEmbeddedEmailEnabled } from "@/lib/account-kit-config";
+import {
+  hasAlchemyApiKey,
+  isAlchemyEmbeddedEmailEnabled,
+} from "@/lib/account-kit-config";
 import { AppShell } from "@/components/AppShell";
+import { networkConfig } from "@/lib/brand";
 
 export default function StudentOnboardingPage() {
   const router = useRouter();
-  const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
+  const [me, setMe] = useState<{
+    email: string;
+    smartAccountAddress: string | null;
+  } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
 
@@ -43,7 +50,12 @@ export default function StudentOnboardingPage() {
     if (!signerStatus.isConnected && !signerStatus.isAuthenticating) {
       openAuthModal();
     }
-  }, [me, signerStatus.isConnected, signerStatus.isAuthenticating, openAuthModal]);
+  }, [
+    me,
+    signerStatus.isConnected,
+    signerStatus.isAuthenticating,
+    openAuthModal,
+  ]);
 
   useEffect(() => {
     if (!me) return;
@@ -62,7 +74,9 @@ export default function StudentOnboardingPage() {
     })
       .then(async () => {
         const m = await api<{ smartAccountAddress: string | null }>("/v1/me");
-        setMe((prev) => (prev ? { ...prev, smartAccountAddress: m.smartAccountAddress } : prev));
+        setMe((prev) =>
+          prev ? { ...prev, smartAccountAddress: m.smartAccountAddress } : prev,
+        );
       })
       .catch((x) => setErr(x instanceof Error ? x.message : "Failed"))
       .finally(() => setLinking(false));
@@ -76,34 +90,49 @@ export default function StudentOnboardingPage() {
       return;
     }
     try {
-      await api("/v1/me/wallet", { method: "POST", body: JSON.stringify({ smartAccountAddress: addr }) });
+      await api("/v1/me/wallet", {
+        method: "POST",
+        body: JSON.stringify({ smartAccountAddress: addr }),
+      });
       const m = await api<{ smartAccountAddress: string | null }>("/v1/me");
-      setMe((prev) => (prev ? { ...prev, smartAccountAddress: m.smartAccountAddress } : null));
+      setMe((prev) =>
+        prev ? { ...prev, smartAccountAddress: m.smartAccountAddress } : null,
+      );
     } catch (x) {
       setErr(x instanceof Error ? x.message : "Failed");
     }
   };
 
-  if (!me) return <div className="p-8 text-center text-slate-600">Loading…</div>;
+  if (!me)
+    return <div className="p-8 text-center text-slate-600">Loading…</div>;
 
   return (
     <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
-      <h1 className="text-xl font-semibold text-slate-900">Wallet onboarding</h1>
+      <h1 className="text-xl font-semibold text-slate-900">
+        Wallet onboarding
+      </h1>
       <p className="mt-2 max-w-lg text-sm text-slate-600">
-        Link a Sepolia smart account address so scores can anchor to your on-chain identity. With embedded Alchemy email off, paste an address
-        below (or enable `NEXT_PUBLIC_ALCHEMY_EMBEDDED_EMAIL=true` after fixing dashboard verification).
+        Link a {networkConfig.chainName} smart account address so scores can
+        anchor to your on-chain identity. With embedded Alchemy email off, paste
+        an address below (or enable `NEXT_PUBLIC_ALCHEMY_EMBEDDED_EMAIL=true`
+        after fixing dashboard verification).
       </p>
       {!me.smartAccountAddress && (
         <>
           <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
             {isAlchemyEmbeddedEmailEnabled() ? (
               <>
-                <p className="font-medium">Creating your Alchemy smart account…</p>
+                <p className="font-medium">
+                  Creating your Alchemy smart account…
+                </p>
                 <p className="mt-1 text-amber-900/80">
-                  If nothing happens, your browser may block the modal. Reload and try again.
+                  If nothing happens, your browser may block the modal. Reload
+                  and try again.
                 </p>
                 <p className="mt-2">
-                  {isLoadingAccount || signerStatus.isAuthenticating || signerStatus.isInitializing ? (
+                  {isLoadingAccount ||
+                  signerStatus.isAuthenticating ||
+                  signerStatus.isInitializing ? (
                     <span>Working…</span>
                   ) : (
                     <span>Waiting for authentication…</span>
@@ -112,21 +141,34 @@ export default function StudentOnboardingPage() {
               </>
             ) : hasAlchemyApiKey() ? (
               <>
-                <p className="font-medium">Embedded Alchemy email sign-in is off.</p>
-                <p className="mt-1 text-amber-900/80">Paste your Sepolia smart account address below.</p>
+                <p className="font-medium">
+                  Embedded Alchemy email sign-in is off.
+                </p>
+                <p className="mt-1 text-amber-900/80">
+                  Paste your {networkConfig.chainName} smart account address
+                  below.
+                </p>
               </>
             ) : (
               <>
                 <p className="font-medium">Alchemy API key missing.</p>
-                <p className="mt-1 text-amber-900/80">Paste your Sepolia smart account address manually for development.</p>
+                <p className="mt-1 text-amber-900/80">
+                  Paste your {networkConfig.chainName} smart account address
+                  manually for development.
+                </p>
               </>
             )}
           </div>
 
           {!isAlchemyEmbeddedEmailEnabled() && (
-            <form onSubmit={(e) => void linkWalletManual(e)} className="mt-6 max-w-md space-y-4">
+            <form
+              onSubmit={(e) => void linkWalletManual(e)}
+              className="mt-6 max-w-md space-y-4"
+            >
               <div>
-                <label className="block text-sm font-medium text-slate-700">Smart account address</label>
+                <label className="block text-sm font-medium text-slate-700">
+                  Smart account address
+                </label>
                 <input
                   className="mt-1 w-full rounded border border-slate-300 px-3 py-2 font-mono text-sm"
                   placeholder="0x…"
@@ -135,7 +177,10 @@ export default function StudentOnboardingPage() {
                 />
               </div>
               {err && <p className="text-sm text-red-600">{err}</p>}
-              <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white">
+              <button
+                type="submit"
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white"
+              >
                 Save address
               </button>
             </form>
@@ -143,7 +188,12 @@ export default function StudentOnboardingPage() {
 
           {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
           <label className="mt-6 flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} disabled={!me.smartAccountAddress} />
+            <input
+              type="checkbox"
+              checked={saved}
+              onChange={(e) => setSaved(e.target.checked)}
+              disabled={!me.smartAccountAddress}
+            />
             I have saved my wallet address somewhere safe
           </label>
           <button

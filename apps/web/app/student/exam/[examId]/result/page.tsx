@@ -5,12 +5,11 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/AppShell";
-import { buildExplorerTxUrl } from "@/lib/brand";
+import { buildExplorerTxUrl, networkConfig } from "@/lib/brand";
 
 export default function ExamResultPage() {
   const params = useParams();
   const search = useSearchParams();
-  const examId = Number(params.examId);
   const attemptId = Number(search.get("attempt"));
   const [me, setMe] = useState<{
     email: string;
@@ -59,7 +58,8 @@ export default function ExamResultPage() {
         )}
         {!result.anchorTxHash && (
           <p className="mt-2 text-slate-500">
-            No tx (configure relayer + ScoreAnchor for Sepolia).
+            No tx (configure relayer + ScoreAnchor for {networkConfig.chainName}
+            ).
           </p>
         )}
       </div>

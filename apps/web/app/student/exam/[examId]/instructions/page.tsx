@@ -5,12 +5,16 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/AppShell";
+import { networkConfig } from "@/lib/brand";
 
 export default function ExamInstructionsPage() {
   const params = useParams();
   const router = useRouter();
   const examId = Number(params.examId);
-  const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
+  const [me, setMe] = useState<{
+    email: string;
+    smartAccountAddress: string | null;
+  } | null>(null);
   const [exam, setExam] = useState<{
     id: number;
     title: string;
@@ -39,11 +43,18 @@ export default function ExamInstructionsPage() {
   return (
     <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
       <h1 className="text-xl font-semibold">{exam.title}</h1>
-      <p className="mt-2 text-sm text-slate-600">Duration: {exam.durationMinutes} minutes (server-enforced window).</p>
-      <p className="mt-4 text-sm text-slate-600">
-        By starting, you confirm you will complete your own work. Scores may be anchored on Sepolia for verification.
+      <p className="mt-2 text-sm text-slate-600">
+        Duration: {exam.durationMinutes} minutes (server-enforced window).
       </p>
-      {!exam.eligible && <p className="mt-4 text-amber-800">This exam is outside the scheduled window.</p>}
+      <p className="mt-4 text-sm text-slate-600">
+        By starting, you confirm you will complete your own work. Scores may be
+        anchored on {networkConfig.chainName} for verification.
+      </p>
+      {!exam.eligible && (
+        <p className="mt-4 text-amber-800">
+          This exam is outside the scheduled window.
+        </p>
+      )}
       {exam.eligible && (
         <button
           type="button"
@@ -54,7 +65,10 @@ export default function ExamInstructionsPage() {
         </button>
       )}
       <p className="mt-8">
-        <Link href="/student/dashboard" className="text-sm text-slate-600 underline">
+        <Link
+          href="/student/dashboard"
+          className="text-sm text-slate-600 underline"
+        >
           Back
         </Link>
       </p>

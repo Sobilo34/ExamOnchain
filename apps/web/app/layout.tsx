@@ -3,7 +3,7 @@ import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import "@account-kit/react/styles.css";
 import { Providers } from "./providers";
-import { appBrand } from "@/lib/brand";
+import { aiConfig, appBrand, networkConfig } from "@/lib/brand";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -13,7 +13,7 @@ const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
 export const metadata: Metadata = {
   title: appBrand.appName,
-  description: `${appBrand.institutionShortName} decentralized assessment platform for OpenRouter-powered exams and Sepolia score anchors`,
+  description: `${appBrand.institutionShortName} decentralized assessment platform for ${aiConfig.providerName}-powered exams and ${networkConfig.chainName} score anchors`,
 };
 
 export default function RootLayout({
