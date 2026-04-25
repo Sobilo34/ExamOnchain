@@ -7,11 +7,20 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w @examonchain/api\" \"npm run dev -w @examonchain/web\"",
+    "dev:api": "npm run dev -w @examonchain/api",
+    "dev:web": "npm run dev -w @examonchain/web",
     "build": "npm run build -w @examonchain/api && npm run build -w @examonchain/web",
     "db:generate": "npm run db:generate -w @examonchain/api",
     "db:push": "npm run db:push -w @examonchain/api",
     "contracts:build": "forge build --root contracts",
     "contracts:test": "forge test --root contracts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.0",
+    "ajv": "^8.17.1",
+    "fast-json-stringify": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

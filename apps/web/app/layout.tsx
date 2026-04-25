@@ -1,19 +1,31 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import "@account-kit/react/styles.css";
 import { Providers } from "./providers";
+import { appBrand } from "@/lib/brand";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+});
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
 export const metadata: Metadata = {
-  title: "ExamOnchain",
-  description: "Decentralized assessment — Sepolia score anchors",
+  title: appBrand.appName,
+  description: `${appBrand.institutionShortName} decentralized assessment platform for OpenRouter-powered exams and Sepolia score anchors`,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} min-h-screen bg-slate-50 text-slate-900 antialiased`}>
+      <body
+        className={`${spaceGrotesk.variable} ${fraunces.variable} min-h-screen bg-slate-50 text-slate-900 antialiased`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { isAlchemyEmbeddedEmailEnabled } from "@/lib/account-kit-config";
 import { AppShell } from "@/components/AppShell";
 
 type Course = {
@@ -28,6 +29,10 @@ export default function StudentDashboardPage() {
     ]).then(([m, c]) => {
       if (!m) {
         router.push("/student/login");
+        return;
+      }
+      if (!m.smartAccountAddress && isAlchemyEmbeddedEmailEnabled()) {
+        router.push("/student/onboarding");
         return;
       }
       setMe(m);

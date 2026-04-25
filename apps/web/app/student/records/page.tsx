@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/AppShell";
+import { buildExplorerTxUrl } from "@/lib/brand";
 
 export default function StudentRecordsPage() {
   const router = useRouter();
-  const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
+  const [me, setMe] = useState<{
+    email: string;
+    smartAccountAddress: string | null;
+  } | null>(null);
   const [records, setRecords] = useState<
     {
       attemptId: number;
@@ -27,7 +31,9 @@ export default function StudentRecordsPage() {
   }, [router]);
 
   useEffect(() => {
-    void api<{ records: typeof records }>("/v1/student/records").then((r) => setRecords(r.records));
+    void api<{ records: typeof records }>("/v1/student/records").then((r) =>
+      setRecords(r.records),
+    );
   }, []);
 
   if (!me) return <div className="p-8 text-center">Loading…</div>;
@@ -56,7 +62,7 @@ export default function StudentRecordsPage() {
                 {r.anchorTxHash && (
                   <a
                     className="text-sky-700 underline"
-                    href={`https://sepolia.etherscan.io/tx/${r.anchorTxHash}`}
+                    href={buildExplorerTxUrl(r.anchorTxHash)}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -68,7 +74,9 @@ export default function StudentRecordsPage() {
           ))}
         </tbody>
       </table>
-      {records.length === 0 && <p className="mt-6 text-slate-600">No submitted attempts yet.</p>}
+      {records.length === 0 && (
+        <p className="mt-6 text-slate-600">No submitted attempts yet.</p>
+      )}
     </AppShell>
   );
 }

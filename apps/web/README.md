@@ -2,6 +2,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment variables
+
+Copy `apps/web/.env.local.example` to `apps/web/.env.local` and set:
+
+- `BACKEND_URL`: Fastify API base URL used by Next.js `rewrites` (`/api/*` proxy). Match the host you actually run the API on (`localhost` vs `127.0.0.1` can matter for cookies in some setups).
+- `NEXT_PUBLIC_ALCHEMY_API_KEY`: enables Alchemy Account Kit email auth + Light Account creation in onboarding pages.
+
 First, run the development server:
 
 ```bash

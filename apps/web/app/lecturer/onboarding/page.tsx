@@ -8,42 +8,42 @@ import { api } from "@/lib/api";
 import { hasAlchemyApiKey, isAlchemyEmbeddedEmailEnabled } from "@/lib/account-kit-config";
 import { AppShell } from "@/components/AppShell";
 
-export default function StudentOnboardingPage() {
+export default function LecturerOnboardingPage() {
   const router = useRouter();
   const [me, setMe] = useState<{ email: string; smartAccountAddress: string | null } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
+  const [openedModal, setOpenedModal] = useState(false);
 
   const signerStatus = useSignerStatus();
   const { openAuthModal } = useAuthModal();
   const { address, isLoadingAccount } = useAccount({ type: "LightAccount" });
 
   const [addr, setAddr] = useState("");
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    void api<{ email: string; smartAccountAddress: string | null }>("/v1/me")
+    void api<{ email: string; smartAccountAddress: string | null; role: string }>("/v1/me")
       .then((m) => {
+        if (m.role !== "LECTURER") router.push("/");
         if (m.smartAccountAddress) {
-          router.push("/student/dashboard");
+          router.push("/lecturer/dashboard");
           return;
         }
         setMe(m);
       })
-      .catch(() => router.push("/student/login"));
+      .catch(() => router.push("/lecturer/login"));
   }, [router]);
 
-  // Auto-create + link smart account (Alchemy AA) when we don't have a linked wallet yet.
   useEffect(() => {
     if (!me) return;
     if (me.smartAccountAddress) return;
     if (!isAlchemyEmbeddedEmailEnabled()) return;
-
-    // Trigger embedded-wallet auth. User will still confirm inside the modal.
+    if (openedModal) return;
     if (!signerStatus.isConnected && !signerStatus.isAuthenticating) {
+      setOpenedModal(true);
       openAuthModal();
     }
-  }, [me, signerStatus.isConnected, signerStatus.isAuthenticating, openAuthModal]);
+  }, [me, signerStatus.isConnected, signerStatus.isAuthenticating, openAuthModal, openedModal]);
 
   useEffect(() => {
     if (!me) return;
@@ -68,7 +68,7 @@ export default function StudentOnboardingPage() {
       .finally(() => setLinking(false));
   }, [me, address, linking]);
 
-  const linkWalletManual = async (e: React.FormEvent) => {
+  const linkManual = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
     if (!isAddress(addr)) {
@@ -87,21 +87,19 @@ export default function StudentOnboardingPage() {
   if (!me) return <div className="p-8 text-center text-slate-600">Loading…</div>;
 
   return (
-    <AppShell role="student" email={me.email} wallet={me.smartAccountAddress}>
-      <h1 className="text-xl font-semibold text-slate-900">Wallet onboarding</h1>
+    <AppShell role="lecturer" email={me.email} wallet={me.smartAccountAddress}>
+      <h1 className="text-xl font-semibold text-slate-900">Lecturer wallet (Alchemy AA)</h1>
       <p className="mt-2 max-w-lg text-sm text-slate-600">
-        Link a Sepolia smart account address so scores can anchor to your on-chain identity. With embedded Alchemy email off, paste an address
-        below (or enable `NEXT_PUBLIC_ALCHEMY_EMBEDDED_EMAIL=true` after fixing dashboard verification).
+        Link a Sepolia smart account to your profile. With embedded Alchemy email enabled, Account Kit can create one after email verification;
+        otherwise paste an address below.
       </p>
+
       {!me.smartAccountAddress && (
         <>
           <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
             {isAlchemyEmbeddedEmailEnabled() ? (
               <>
                 <p className="font-medium">Creating your Alchemy smart account…</p>
-                <p className="mt-1 text-amber-900/80">
-                  If nothing happens, your browser may block the modal. Reload and try again.
-                </p>
                 <p className="mt-2">
                   {isLoadingAccount || signerStatus.isAuthenticating || signerStatus.isInitializing ? (
                     <span>Working…</span>
@@ -113,18 +111,23 @@ export default function StudentOnboardingPage() {
             ) : hasAlchemyApiKey() ? (
               <>
                 <p className="font-medium">Embedded Alchemy email sign-in is off.</p>
-                <p className="mt-1 text-amber-900/80">Paste your Sepolia smart account address below.</p>
+                <p className="mt-1 text-amber-900/80">
+                  Paste your Sepolia smart account address below. To re-enable email OTP later, uncomment `auth` in `account-kit-config.ts` and set
+                  `NEXT_PUBLIC_ALCHEMY_EMBEDDED_EMAIL=true`.
+                </p>
               </>
             ) : (
               <>
                 <p className="font-medium">Alchemy API key missing.</p>
-                <p className="mt-1 text-amber-900/80">Paste your Sepolia smart account address manually for development.</p>
+                <p className="mt-1 text-amber-900/80">
+                  Set `NEXT_PUBLIC_ALCHEMY_API_KEY` in `apps/web/.env.local`, or paste an address below.
+                </p>
               </>
             )}
           </div>
 
           {!isAlchemyEmbeddedEmailEnabled() && (
-            <form onSubmit={(e) => void linkWalletManual(e)} className="mt-6 max-w-md space-y-4">
+            <form onSubmit={(e) => void linkManual(e)} className="mt-6 max-w-md space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700">Smart account address</label>
                 <input
@@ -141,34 +144,20 @@ export default function StudentOnboardingPage() {
             </form>
           )}
 
-          {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
-          <label className="mt-6 flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} disabled={!me.smartAccountAddress} />
-            I have saved my wallet address somewhere safe
-          </label>
-          <button
-            type="button"
-            disabled={!saved || !me.smartAccountAddress || linking}
-            onClick={() => router.push("/student/dashboard")}
-            className="mt-4 rounded-lg border border-slate-300 px-4 py-2 text-sm disabled:opacity-50"
-          >
-            Continue to dashboard
-          </button>
+          {err && isAlchemyEmbeddedEmailEnabled() && <p className="mt-4 text-sm text-red-600">{err}</p>}
         </>
       )}
 
       {me.smartAccountAddress && (
-        <div className="mt-6 text-sm text-slate-700">
-          Wallet linked. You can continue.
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => router.push("/student/dashboard")}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white"
-            >
-              Continue to dashboard
-            </button>
-          </div>
+        <div className="mt-6">
+          <p className="text-sm text-slate-700">Wallet linked.</p>
+          <button
+            type="button"
+            onClick={() => router.push("/lecturer/dashboard")}
+            className="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white"
+          >
+            Continue to dashboard
+          </button>
         </div>
       )}
     </AppShell>

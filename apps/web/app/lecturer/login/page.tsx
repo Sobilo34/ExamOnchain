@@ -4,12 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { useAlchemyConnectAfterAuth } from "@/hooks/useAlchemyConnectAfterAuth";
+import { AlchemyPostAuthPanel } from "@/components/AlchemyPostAuthPanel";
 
 export default function LecturerLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [mode, setMode] = useState<"login" | "register">("login");
   const [err, setErr] = useState<string | null>(null);
+
+  const {
+    phase,
+    beginWalletStep,
+    walletErr,
+    isLinking,
+    reopenAlchemy,
+    retryLink,
+    hasAlchemy,
+  } = useAlchemyConnectAfterAuth("/lecturer/dashboard");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +35,8 @@ export default function LecturerLoginPage() {
       } else {
         await api("/v1/auth/login", { method: "POST", body: JSON.stringify({ email }) });
       }
-      router.push("/lecturer/dashboard");
+      if (hasAlchemy) beginWalletStep();
+      else router.push("/lecturer/dashboard");
     } catch (x) {
       setErr(x instanceof Error ? x.message : "Failed");
     }
@@ -44,10 +57,27 @@ export default function LecturerLoginPage() {
           />
         </div>
         {err && <p className="text-sm text-red-600">{err}</p>}
-        <button type="submit" className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white">
-          {mode === "login" ? "Sign in" : "Register"}
+        <button
+          type="submit"
+          disabled={phase === "wallet"}
+          className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {phase === "wallet"
+            ? "Finish wallet step below…"
+            : mode === "login"
+              ? "Sign in"
+              : "Register"}
         </button>
       </form>
+      <AlchemyPostAuthPanel
+        email={email}
+        phase={phase}
+        walletErr={walletErr}
+        isLinking={isLinking}
+        onReopenModal={reopenAlchemy}
+        onRetryLink={retryLink}
+        roleLabel="Lecturer"
+      />
       <button
         type="button"
         className="mt-4 text-sm text-slate-600 underline"

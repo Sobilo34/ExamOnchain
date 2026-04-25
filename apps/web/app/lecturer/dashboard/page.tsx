@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { isAlchemyEmbeddedEmailEnabled } from "@/lib/account-kit-config";
 import { AppShell } from "@/components/AppShell";
 
 export default function LecturerDashboardPage() {
@@ -15,6 +16,10 @@ export default function LecturerDashboardPage() {
     void api<{ email: string; smartAccountAddress: string | null; role: string }>("/v1/me")
       .then((m) => {
         if (m.role !== "LECTURER") router.push("/");
+        if (!m.smartAccountAddress && isAlchemyEmbeddedEmailEnabled()) {
+          router.push("/lecturer/onboarding");
+          return;
+        }
         setMe(m);
       })
       .catch(() => router.push("/lecturer/login"));

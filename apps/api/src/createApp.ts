@@ -526,8 +526,11 @@ export async function createApp(): Promise<FastifyInstance> {
       include: { course: { include: { materials: true } } },
     });
     if (!exam) return reply.code(404).send({ error: "Not found" });
-    const text = exam.course.materials.map((m) => m.textHint ?? "").join("\n\n");
-    const drafts = await extractQuestionsFromText(text);
+    const bodyParse = z.object({ sourceText: z.string().optional() }).safeParse(req.body ?? {});
+    const pasted = bodyParse.success ? (bodyParse.data.sourceText ?? "").trim() : "";
+    const materialText = exam.course.materials.map((m) => m.textHint ?? "").join("\n\n");
+    const text = [materialText, pasted].filter((s) => s.length > 0).join("\n\n---\n\n");
+    const drafts = await extractQuestionsFromText(text || pasted || materialText);
     await prisma.question.deleteMany({ where: { examId: id } });
     let order = 0;
     for (const d of drafts) {
