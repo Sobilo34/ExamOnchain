@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import "@account-kit/react/styles.css";
-import { Providers } from "./providers";
+import { ProvidersClient } from "./providers-client";
 import { aiConfig, appBrand, networkConfig } from "@/lib/brand";
 
 const spaceGrotesk = Space_Grotesk({
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${fraunces.variable} min-h-screen bg-slate-50 text-slate-900 antialiased`}
       >
-        <Providers>{children}</Providers>
+        <ProvidersClient>{children}</ProvidersClient>
       </body>
     </html>
   );
